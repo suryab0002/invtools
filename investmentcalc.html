@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Calculator (₹)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 40px; background-color: #eef2f3; }
+        .calc-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 380px; }
+        h2 { color: #1a2a6c; margin-bottom: 20px; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; transition: border-color 0.3s; }
+        input:focus { border-color: #1a2a6c; outline: none; }
+        .results { margin-top: 25px; padding: 20px; background: #f9f9f9; border-radius: 12px; }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.05rem; }
+        .value { font-weight: 800; color: #2c3e50; }
+        .profit { color: #1b5e20; } /* Deep Green */
+        .loss { color: #b71c1c; }   /* Deep Red */
+        small { color: #888; font-weight: normal; }
+    </style>
+</head>
+<body>
+
+<div class="calc-card">
+    <h2>Investment Calc (₹)</h2>
+    
+    <div class="input-group">
+        <label>Amount Invested (₹)</label>
+        <input type="number" id="invested" placeholder="e.g. 50000" oninput="calculate()">
+    </div>
+
+    <div class="input-group">
+        <label>Change (%) <small>(Use - for loss)</small></label>
+        <input type="number" id="percent" placeholder="e.g. 12" oninput="calculate()">
+    </div>
+
+    <div class="results">
+        <div class="result-item">
+            <span>Final Value:</span>
+            <span id="final-amount" class="value">₹0</span>
+        </div>
+        <div class="result-item">
+            <span>Net Profit/Loss:</span>
+            <span id="profit-value" class="value">₹0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const invested = parseFloat(document.getElementById('invested').value) || 0;
+        const percent = parseFloat(document.getElementById('percent').value) || 0;
+
+        // Formula for Final Amount
+        const finalAmount = invested * (1 + (percent / 100));
+        const profit = finalAmount - invested;
+
+        // Indian Currency Formatting (en-IN)
+        const formatter = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        });
+
+        // Update UI
+        document.getElementById('final-amount').innerText = formatter.format(finalAmount);
+        
+        const profitDisplay = document.getElementById('profit-value');
+        profitDisplay.innerText = (profit >= 0 ? '+ ' : '') + formatter.format(profit);
+
+        // Dynamic Color Logic
+        if (profit > 0) {
+            profitDisplay.className = 'value profit';
+        } else if (profit < 0) {
+            profitDisplay.className = 'value loss';
+        } else {
+            profitDisplay.className = 'value';
+        }
+    }
+</script>
+
+</body>
+</html>
