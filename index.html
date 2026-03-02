@@ -3,80 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Calculator (₹)</title>
+    <title>My Personal Finance Hub</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 40px; background-color: #eef2f3; }
-        .calc-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 380px; }
-        h2 { color: #1a2a6c; margin-bottom: 20px; text-align: center; }
+        :root {
+            --primary: #1a2a6c;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #333;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: var(--bg); height: 100vh; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 250px; background: var(--primary); color: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar h2 { font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px; }
+        .nav-item { padding: 12px; margin: 10px 0; cursor: pointer; border-radius: 6px; transition: 0.3s; background: rgba(255,255,255,0.1); }
+        .nav-item:hover { background: rgba(255,255,255,0.3); }
+        .nav-item.active { background: #f39c12; color: #fff; font-weight: bold; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; }
+        
+        .tool-container { background: var(--card); padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 450px; height: fit-content; }
+        
+        /* Tool UI Elements */
         .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; transition: border-color 0.3s; }
-        input:focus { border-color: #1a2a6c; outline: none; }
-        .results { margin-top: 25px; padding: 20px; background: #f9f9f9; border-radius: 12px; }
-        .result-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 1.05rem; }
-        .value { font-weight: 800; color: #2c3e50; }
-        .profit { color: #1b5e20; } /* Deep Green */
-        .loss { color: #b71c1c; }   /* Deep Red */
-        small { color: #888; font-weight: normal; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #555; }
+        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        
+        .results { margin-top: 25px; padding: 20px; background: #f8fafb; border-radius: 12px; border: 1px solid #eee; }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .value { font-weight: 800; color: var(--primary); }
+        .profit { color: #1b5e20; }
+        .loss { color: #b71c1c; }
     </style>
 </head>
 <body>
 
-<div class="calc-card">
-    <h2>Investment Calc (₹)</h2>
-    
-    <div class="input-group">
-        <label>Amount Invested (₹)</label>
-        <input type="number" id="invested" placeholder="e.g. 50000" oninput="calculate()">
+    <div class="sidebar">
+        <h2>Finance Hub</h2>
+        <div class="nav-item active">Profit/Loss Calc</div>
+        <div class="nav-item" style="opacity: 0.5; cursor: not-allowed;">(More tools soon...)</div>
     </div>
 
-    <div class="input-group">
-        <label>Change (%) <small>(Use - for loss)</small></label>
-        <input type="number" id="percent" placeholder="e.g. 12" oninput="calculate()">
-    </div>
+    <div class="main-content">
+        <div id="tool-box" class="tool-container">
+            <h2 style="margin-top:0">Investment Profit Calc</h2>
+            
+            <div class="input-group">
+                <label>Amount Invested (₹)</label>
+                <input type="number" id="invested" placeholder="e.g. 50000" oninput="runCalc()">
+            </div>
 
-    <div class="results">
-        <div class="result-item">
-            <span>Final Value:</span>
-            <span id="final-amount" class="value">₹0</span>
-        </div>
-        <div class="result-item">
-            <span>Net Profit/Loss:</span>
-            <span id="profit-value" class="value">₹0</span>
+            <div class="input-group">
+                <label>Growth/Decline (%)</label>
+                <input type="number" id="percent" placeholder="e.g. 15" oninput="runCalc()">
+            </div>
+
+            <div class="results">
+                <div class="result-item">
+                    <span>Final Value:</span>
+                    <span id="final-amount" class="value">₹0</span>
+                </div>
+                <div class="result-item">
+                    <span>Net Profit/Loss:</span>
+                    <span id="profit-value" class="value">₹0</span>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
 <script>
-    function calculate() {
+    // Logic for Tool 1: Profit/Loss
+    function runCalc() {
         const invested = parseFloat(document.getElementById('invested').value) || 0;
         const percent = parseFloat(document.getElementById('percent').value) || 0;
 
-        // Formula for Final Amount
         const finalAmount = invested * (1 + (percent / 100));
         const profit = finalAmount - invested;
 
-        // Indian Currency Formatting (en-IN)
         const formatter = new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
+            style: 'currency', currency: 'INR', maximumFractionDigits: 0
         });
 
-        // Update UI
         document.getElementById('final-amount').innerText = formatter.format(finalAmount);
         
-        const profitDisplay = document.getElementById('profit-value');
-        profitDisplay.innerText = (profit >= 0 ? '+ ' : '') + formatter.format(profit);
-
-        // Dynamic Color Logic
-        if (profit > 0) {
-            profitDisplay.className = 'value profit';
-        } else if (profit < 0) {
-            profitDisplay.className = 'value loss';
-        } else {
-            profitDisplay.className = 'value';
-        }
+        const pDisplay = document.getElementById('profit-value');
+        pDisplay.innerText = (profit >= 0 ? '+ ' : '') + formatter.format(profit);
+        pDisplay.className = profit >= 0 ? 'value profit' : 'value loss';
+        if(profit === 0) pDisplay.className = 'value';
     }
 </script>
 
